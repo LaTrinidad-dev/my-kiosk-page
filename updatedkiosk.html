@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUNICIPALITY OF LA TRINIDAD, BENGUET</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            text-align: center;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f103 0%, #f5f103 100%);
+            animation: gradientAnimation 5s ease infinite;
+            background-size: 400% 400%;
+            position: relative;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #banner {
+            width: 100%; 
+            max-width: 600px; 
+            margin-bottom: 20px; 
+            z-index: 10; 
+            position: relative;
+            pointer-events: none; 
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 90%;
+            max-width: 300px; 
+            background: #333; 
+            color: #f5f103; 
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: block; 
+            margin-left: auto; 
+            margin-right: auto; 
+            position: relative; 
+            z-index: 20; 
+        }
+        button:hover {
+            background: #f5f103; 
+            color: #333; 
+            transform: scale(1.05);
+        }
+        #mainContent {
+            display: none;
+            margin-top: 10px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .receipt {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            width: 80mm; 
+            display: none;
+            text-align: center;
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left; 
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f5f103;
+        }
+        #thankYouMessage {
+            display: none;
+            font-size: 32px;
+            color: #333;
+            margin-top: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: none; 
+            }
+            button {
+                display: none; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img id="banner" src="C:\Users\LaTrinidad\Downloads\f178f9e0-ced2-4ed4-b09e-d81d29147b83.jpg" alt="Your Banner">
+
+    <button id="startButton" onclick="startApp()">Start</button>
+
+    <div id="mainContent">
+        <button id="showRequirementsButton" onclick="showRequirements()">Show All Requirements</button>
+        <button class="exit-button" onclick="exitApp()" style="display: none;">Exit</button>
+        
+        <div class="time-display">
+            Current Time: <span id="currentTime"></span><br>
+            Current Date: <span id="currentDate"></span>
+        </div>
+        
+        <div class="receipt" id="receiptDisplay">
+            <h3>Receipt</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>CHECKLIST OF REQUIREMENTS</th>
+                        <th>WHERE TO GET</th>
+                    </tr>
+                </thead>
+                <tbody id="requirementsTableBody"></tbody>
+            </table>
+            <button class="done-button" id="doneButton" onclick="printRequirements()">Print</button>
+        </div>
+    </div>
+
+    <div id="thankYouMessage">THANK YOU!</div>
+
+    <script>
+        const products = {
+            "DTI SEC/CDA Reg Cert.": "DTI SEC/CDA",
+            "Barangay Business Clearance": "Barangay where business is located",
+            "Zoning/Locational Clearance": "Zoning Section, MPDO",
+            "Occupancy Certificate/Meo Certification or its equivalent": "Office of bldg, Official/Mun. Eng'g. Office",
+            "Sanitary Permit Health Certificate": "Municipal Health Services Office",
+            "Tax Order Payment-Assessment of Tax, fees & charges": "Mun. Treas. Office/Business Tax Division",
+            "Fire Safety Inspection Certificate": "LTMFS-BFP",
+            "If business establishment is owned": "Client",
+            "If renting/not owned(Contract of lease/ MOA/ written consent)": "Client",
+            "Market Clearance(for 1993/2002 NPM & LTVTP occupants)": "Market Supervisor's Office, 2 FlrTVTP",
+            "Authorization Letter/ SPA-Notarized (if not processed personally by permittee)": "Client",
+            "100 linear meter radius clearance (sale of Tobacco products)": "Municipal Engineering Office(MEO)",
+            "50 linear meter radius clearance (billiards/ pool halls)": "Municipal Engineering Office(MEO)",
+            "Undertaking (Billiards/ pool halls)": "Business Permits & Licensing Office",
+            "Undertaking (Computer shops/Internet shops)": "Business Permits & Licensing Office",
+            "Certificate of NO VIOLATION (Bars/Resto-Bar/ Videoke bars)": "LTMPS PNP",
+        };
+
+        function startApp() {
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('startButton').style.display = 'none';
+            document.querySelector('.exit-button').style.display = 'block'; 
+            document.querySelector('.done-button').style.display = 'none'; 
+            document.getElementById('showRequirementsButton').style.display = 'block'; 
+        }
+
+        function exitApp() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('startButton').style.display = 'block';
+            document.querySelector('.exit-button').style.display = 'none'; 
+            document.querySelector('.done-button').style.display = 'none'; 
+            document.getElementById('receiptDisplay').style.display = 'none';
+            document.getElementById('thankYouMessage').style.display = 'none';
+        }
+
+        function printRequirements() {
+            const originalContent = document.body.innerHTML;
+            const printContent = document.getElementById('receiptDisplay').innerHTML;
+            document.body.innerHTML = printContent;
+            window.print(); 
+            document.body.innerHTML = originalContent; 
+            exitApp(); 
+        }
+
+        function showRequirements() {
+            const tableBody = document.getElementById('requirementsTableBody');
+            tableBody.innerHTML = ''; 
+            for (const [requirement, location] of Object.entries(products)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${requirement}</td><td>${location}</td>`;
+                tableBody.appendChild(row);
+            }
+            document.getElementById('receiptDisplay').style.display = 'block';
+            document.querySelector('.done-button').style.display = 'block'; 
+            document.getElementById('showRequirementsButton').style.display = 'none'; 
+            document.querySelector('.exit-button').style.display = 'none'; 
+       
+        }
+
+function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString();
+}
+
+setInterval(updateTime, 1000);
+updateTime();  
+</script>
+</body>
+</html>
